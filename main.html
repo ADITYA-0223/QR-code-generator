@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Generator</title>
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/alwan/dist/css/alwan.min.css">
+    <script src="https://unpkg.com/alwan/dist/js/alwan.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Libre+Barcode+128+Text&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Saira:ital,wght@0,100..900;1,100..900&display=swap');
+        *{
+            margin: 0;
+            
+        }
+        body{
+
+            background-color: black;
+            display: flex;
+            height: 100vh;
+            justify-content: center;
+            align-items: center;
+        }
+        .full-screen {
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            background-color: #0E0E0E;
+            padding: 8rem;
+            border-radius: 20px;
+            box-shadow: 0 0 40px 0px #111111;
+        }
+        .active {
+            display: flex;
+        }
+        .m-headding{
+            font-family: 'Libre Barcode 128 Text', cursive;
+            font-size: 4rem;
+            color: white;
+            margin-bottom: 2rem;
+            margin-top: -2rem;
+        }
+        .urlinput{
+            padding: 1rem;
+            padding-left: 3rem;
+            padding-right: 3rem;
+            border: none;
+            background: #000000;
+            border-radius: 8px;
+            color: white;
+        }
+        .Next1{
+            font-family: "Saira", sans-serif;
+            padding: 10px;
+            padding-left: 2rem;
+            padding-right: 2rem;
+            border-radius: 10px;
+            margin-top: 2rem;
+            margin-bottom: -5rem;
+            background: black;
+            color: white;
+            border: none;
+        }
+        .Next2{
+            font-family: "Saira", sans-serif;
+            padding: 1rem;
+            padding-left: 2rem;
+            padding-right: 2rem;
+            border-radius: 10px;
+            margin-top: 2rem;
+            margin-bottom: -5rem;
+            background: black;
+            color: white;
+            border: none;
+        }
+        .Next1:hover{
+            background: white;
+            color: black;
+        }
+        .Next2:hover{
+            background: white;
+            color: black;
+        }
+        .qricon{
+            color: red;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .qricon1{
+            font-size: 12rem;
+            color: lime;
+        }
+        .colorqr{
+            display: flex;
+        }
+        /* input:focus {
+        outline: none;
+        } */
+        #fillColorInput {
+            padding: 6rem;
+            padding-left: 3rem;
+            padding-right: 3rem;
+            background: #000000;
+            border-radius: 8px;
+            color: white;
+        }
+        .colortest{
+            width: 4rem;
+        }
+        .alwan__reference{
+            width: 8rem;
+            margin-top: 1rem;
+            margin-bottom: -2rem;
+        }
+        .m-qrcolor{
+            font-family: "Saira", sans-serif;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 100;
+            margin: -5rem;
+            margin-bottom: 1rem;
+
+        }
+        .qrcolor-button{
+            margin-top: 1rem;
+            margin-bottom: -4rem;
+        }
+        .qrcontainer{
+            margin: -3rem;
+            margin-top: -5rem;
+        }
+        footer{
+            position: absolute;
+            bottom: 1rem;
+            background: black;
+            text-align: center;
+            padding: 1rem;
+        }
+        @media (max-width: 768px) {
+            .full-screen {
+                padding: 0;
+                background-color: transparent;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Section 1: URL Input -->
+<div id="section1" class="full-screen active">
+    
+    <p class="m-headding">QR-CODE GENERATOR</p>
+    <input class="urlinput" type="text" id="urlInput" placeholder="https://example.com">
+    <button class="Next1" onclick="navigateTo(2)">Next</button>
+</div>
+
+<!-- Section 2: Hex Code Inputs -->
+<div id="section2" class="full-screen">
+    <p class="m-qrcolor">Choose your QR color</p>
+    <div class="colorqr">
+        <div class="qricon"><ion-icon name="qr-code-outline" class="qricon1"></ion-icon> 
+        <div id="example" class="colortest"></div>
+        
+        </div>
+           
+    </div>
+    <div class="qrcolor-button">
+        <br><button onclick="navigateTo(1)" class="Next2">Back</button>
+        <button onclick="generateQRCode()" class="Next2">Generate QR Code</button>
+    </div> 
+</div>
+
+<!-- Section 3: QR Code Display -->
+<div id="section3" class="full-screen">
+    <p class="m-qrcolor">Your QR Code</p>
+    <div id="qrCodeContainer"></div>
+    <button onclick="navigateTo(1)" class="Next2">Start Over</button>
+</div>
+<footer>
+    <button onclick="navigateTo(1)" class="Next2">Made By Aditya Singh</button>
+</footer>
+<script>
+    const hexColor = '#000000';
+    const alwanReferences = document.querySelectorAll('.alwan__reference');
+    function updateQrIconColor() {
+        const hexColor = alwan.getColor().hex; 
+        console.log(hexColor);
+        const qrIcons = document.querySelectorAll('.qricon1');
+        qrIcons.forEach(element => {
+            element.style.color = hexColor; 
+        });
+    }
+    alwanReferences.forEach(element => {
+        element.addEventListener('click', updateQrIconColor);
+    });
+
+    document.addEventListener('click', function(event) {
+        let target = event.target;
+        while (target != null) {
+            if (target.classList.contains('alwan__reference')) {
+                return;
+            }
+            target = target.parentElement;
+        }
+        updateQrIconColor();
+    });
+    function navigateTo(section) {
+        document.querySelector('.active').classList.remove('active');
+        document.getElementById('section' + section).classList.add('active');
+    }
+    
+    function generateQRCode() {
+        const userInputUrl = document.getElementById('urlInput').value;
+        const userFillColor = alwan.getColor().hex; 
+        console.log(userFillColor);
+        // Background color is now hardcoded to #0E0E0E
+        const userBackColor = "#0E0E0E";
+        const proxyUrl = 'https://pjcrjkxdgwuj4xpvpvy6ns6sem0ykbaz.lambda-url.us-east-1.on.aws';
+    
+        const requestData = {
+            url: userInputUrl,
+            fill_color: userFillColor,
+            back_color: userBackColor
+        };
+        console.log('Request Data:', requestData);
+        fetch(proxyUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(requestData),
+        })
+        .then(response => response.json())
+        .then(data => {
+            const qrCodeContainer = document.getElementById('qrCodeContainer');
+            qrCodeContainer.innerHTML = ''; // Clear previous QR code if any
+            const img = document.createElement('img');
+            img.src = data.qr_code_url;
+            img.alt = 'QR Code';
+            qrCodeContainer.appendChild(img);
+            navigateTo(3); // Navigate to QR code display section
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    }
+    const alwan = new Alwan('#example', {
+      id: '',
+      classname: '',
+      theme: 'dark',
+      toggle: true,
+      popover: true,
+      position: 'bottom-start',
+      margin: 8,
+      preset: true,
+      color: '#05FF00',
+      default: '#05FF00',
+      target: '',
+      format: 'rgb',
+      inputs: {
+        rgb: true,
+        hex: true,
+        hsl: true,
+      },
+      opacity: true,
+      preview: true,
+      closeOnScroll: false,
+      copy: true,
+      swatches: [],
+      toggleSwatches: false, 
+      shared: false, 
+      closeOnScroll: false,
+      
+});
+
+console.log(alwan.getColor().hex);
+    </script>
+
+</body>
+</html>
